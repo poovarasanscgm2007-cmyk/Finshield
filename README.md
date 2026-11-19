@@ -129,7 +129,7 @@ npm run dev
 
 Open `http://localhost:5173` in your browser.
 The interface provides:
-- **Sample Data Banner** permanently visible at top of all pages.
+- **Clean, Modern AP Risk Dashboard**: live KPI metrics, status distributions, and active alert counters.
 - **Login Page** with one-click demo login buttons for each role.
 - **Role-Based Dynamic Sidebar**: only displays modules authorized for the logged-in user.
 - **Maker-Checker Approval Queue**: lists pending approvals, Approve/Reject buttons with real maker-checker enforcement.

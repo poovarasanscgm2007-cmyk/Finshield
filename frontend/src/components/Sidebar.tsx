@@ -112,14 +112,14 @@ const NAV_ITEMS: NavItem[] = [
     id: 'matching',
     label: '3-Way Matching',
     icon: CheckSquare,
-    badge: 'Phase 3',
+    badge: 'Auto',
     allowedRoles: ['AP Employee', 'Finance Manager', 'Admin']
   },
   {
     id: 'grns',
     label: 'Goods Receipt (GRN)',
     icon: Boxes,
-    badge: 'Phase 3',
+    badge: 'Intake',
     allowedRoles: ['Warehouse Employee', 'Finance Manager', 'Admin']
   },
   {

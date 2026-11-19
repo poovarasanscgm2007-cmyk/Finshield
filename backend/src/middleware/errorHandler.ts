@@ -11,10 +11,22 @@ export const errorHandler = (
   res: Response,
   _next: NextFunction
 ): void => {
-  const statusCode = err.statusCode || 500;
-  const message = err.message || 'Internal Server Error';
+  let statusCode = err.statusCode || 500;
+  let message = err.message || 'Internal Server Error';
 
-  console.error(`[Error] ${statusCode} - ${message}`, err.stack);
+  // Handle Multer and upload validation errors as 400 Bad Request
+  if (
+    err.name === 'MulterError' ||
+    message.includes('Invalid file format') ||
+    message.includes('File too large') ||
+    message.includes('Unexpected field')
+  ) {
+    statusCode = 400;
+  }
+
+  if (statusCode >= 500) {
+    console.error(`[Error] ${statusCode} - ${message}`);
+  }
 
   res.status(statusCode).json({
     status: 'error',

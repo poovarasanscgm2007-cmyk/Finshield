@@ -17,7 +17,8 @@ import {
   TrendingUp,
   ShieldCheck,
   Bot,
-  UserCheck
+  UserCheck,
+  Lock
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import {
@@ -366,6 +367,13 @@ export const ThreeWayMatchModal: React.FC<ThreeWayMatchModalProps> = ({
                   <UserCheck className="w-4 h-4" />
                   <span>Authorize Payment Approval</span>
                 </button>
+              </div>
+            )}
+
+            {user?.role === 'Admin' && invoice?.payment_status !== 'APPROVED' && (
+              <div className="flex items-center space-x-1.5 shrink-0 px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-700 text-[11px] text-slate-400">
+                <Lock className="w-3.5 h-3.5 text-amber-400" />
+                <span>Admin payment approval prohibited (Golden Rule #2)</span>
               </div>
             )}
           </div>

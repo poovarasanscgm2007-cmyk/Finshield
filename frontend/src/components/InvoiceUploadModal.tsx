@@ -194,7 +194,7 @@ export const InvoiceUploadModal: React.FC<Props> = ({ onClose, onSuccess }) => {
         {/* Quick Sample Files Shortcut */}
         {!uploading && (
           <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl text-xs space-y-1.5">
-            <span className="text-[11px] font-semibold text-slate-400 block">Sample Test Documents:</span>
+            <span className="text-[11px] font-semibold text-slate-400 block">Test Documents:</span>
             <div className="text-[10px] text-slate-400 font-mono space-y-1">
               <div>&bull; <code className="text-sky-300">sample-data/invoices/INV-101.pdf</code> (Supplier A, PO-101, 100kg wood)</div>
               <div>&bull; <code className="text-sky-300">sample-data/invoices/INV-HIST-01.pdf</code> (Overbilling surcharge pattern)</div>

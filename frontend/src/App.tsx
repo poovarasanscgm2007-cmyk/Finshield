@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
-import SampleDataBanner from './components/SampleDataBanner';
 import LoginPage from './components/LoginPage';
 import Header from './components/Header';
 import Sidebar, { NavTab } from './components/Sidebar';
@@ -9,6 +8,7 @@ import AuditLogPage from './components/AuditLogPage';
 import PurchaseOrdersPage from './components/PurchaseOrdersPage';
 import InvoiceListPage from './components/InvoiceListPage';
 import ThreeWayMatchingPage from './components/ThreeWayMatchingPage';
+import GrnListPage from './components/GrnListPage';
 import GstCompliancePage from './components/GstCompliancePage';
 import AdminRiskConfigPage from './components/AdminRiskConfigPage';
 import { InvestigationCenterPage } from './components/InvestigationCenterPage';
@@ -17,7 +17,6 @@ import { SupplierGraphPage } from './components/SupplierGraphPage';
 import { SupplierScorecardPage } from './components/SupplierScorecardPage';
 import { DemoGuidePage } from './components/DemoGuidePage';
 import ThreeWayMatchModal from './components/ThreeWayMatchModal';
-import PlaceholderPage from './components/PlaceholderPage';
 import {
   Server,
   CheckCircle2,
@@ -154,7 +153,6 @@ const AppContent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-slate-900 text-slate-100 flex flex-col font-sans">
-      <SampleDataBanner />
       <Header />
 
       <div className="flex-1 flex overflow-hidden">
@@ -569,21 +567,7 @@ const AppContent: React.FC = () => {
           {currentTab === 'audit-log' && <AuditLogPage />}
           {currentTab === 'invoices' && <InvoiceListPage />}
           {currentTab === 'matching' && <ThreeWayMatchingPage />}
-
-          {currentTab === 'grns' && (
-            <PlaceholderPage
-              title="Goods Receipt Notes (Warehouse Intake)"
-              phase="Operational in Investigation Center"
-              description="Warehouse employee portal for recording goods intake and resolving physical delivery variances."
-              upcomingFeatures={[
-                'GRN creation linked to authorized PO numbers',
-                'Partial shipment and multiple receipt tracking',
-                'Quantity discrepancy alerts triggering warehouse investigation'
-              ]}
-              onBack={() => setCurrentTab('dashboard')}
-            />
-          )}
-
+          {currentTab === 'grns' && <GrnListPage />}
           {currentTab === 'gst' && <GstCompliancePage />}
           {currentTab === 'risk-config' && <AdminRiskConfigPage />}
 

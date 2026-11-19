@@ -229,8 +229,8 @@ Return your answer strictly in the following JSON structure:
           }
         }
       }
-    } catch (llmErr) {
-      console.warn('LLM API call failed, falling back to deterministic fact engine:', llmErr);
+    } catch (llmErr: any) {
+      console.warn(`[Copilot] LLM synthesis unavailable (${llmErr.message || 'offline'}). Using deterministic fact engine.`);
     }
   }
 

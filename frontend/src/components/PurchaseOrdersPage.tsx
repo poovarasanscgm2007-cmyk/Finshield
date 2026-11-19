@@ -4,16 +4,30 @@ import {
   AlertTriangle,
   CheckCircle2,
   RefreshCw,
-  Edit3
+  Edit3,
+  X,
+  AlertCircle,
+  ShieldCheck
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { PurchaseOrder } from '../types/auth';
 
 export const PurchaseOrdersPage: React.FC = () => {
-  const { authFetch } = useAuth();
+  const { authFetch, user } = useAuth();
   const [purchaseOrders, setPurchaseOrders] = useState<PurchaseOrder[]>([]);
   const [selectedPoDetails, setSelectedPoDetails] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+
+  // Price Modification Modal State
+  const [isPriceModalOpen, setIsPriceModalOpen] = useState<boolean>(false);
+  const [newUnitPrice, setNewUnitPrice] = useState<string>('');
+  const [changeReason, setChangeReason] = useState<string>('Vendor cost renegotiation');
+  const [submittingPrice, setSubmittingPrice] = useState<boolean>(false);
+  const [priceModalError, setPriceModalError] = useState<string | null>(null);
+  const [actionSuccessMessage, setActionSuccessMessage] = useState<string | null>(null);
+
+  const canRequestPriceChange =
+    user?.role === 'Procurement Employee' || user?.role === 'Admin';
 
   const fetchPOs = async () => {
     setLoading(true);
@@ -49,6 +63,53 @@ export const PurchaseOrdersPage: React.FC = () => {
     fetchPOs();
   }, []);
 
+  const handleOpenPriceModal = () => {
+    if (!selectedPoDetails) return;
+    const currentPrice = selectedPoDetails.lines?.[0]?.unit_price || '500';
+    setNewUnitPrice(String(Number(currentPrice) + 200));
+    setChangeReason('Vendor raw material cost renegotiation');
+    setPriceModalError(null);
+    setIsPriceModalOpen(true);
+  };
+
+  const handleSubmitPriceChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!selectedPoDetails || !newUnitPrice || Number(newUnitPrice) <= 0) {
+      setPriceModalError('Please enter a valid positive unit price.');
+      return;
+    }
+
+    setSubmittingPrice(true);
+    setPriceModalError(null);
+
+    try {
+      const res = await authFetch(`/api/purchase-orders/${selectedPoDetails.id}/price`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          newUnitPrice: Number(newUnitPrice),
+          reason: changeReason
+        })
+      });
+
+      const data = await res.json();
+      if (res.ok || res.status === 202) {
+        setIsPriceModalOpen(false);
+        setActionSuccessMessage(
+          `Price modification request submitted under Maker-Checker governance. Status is PENDING Finance Manager approval.`
+        );
+        await fetchPoDetails(selectedPoDetails.id);
+        setTimeout(() => setActionSuccessMessage(null), 7000);
+      } else {
+        setPriceModalError(data.message || 'Failed to submit price change request.');
+      }
+    } catch (err: any) {
+      setPriceModalError(err.message || 'Error communicating with backend.');
+    } finally {
+      setSubmittingPrice(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
@@ -70,6 +131,14 @@ export const PurchaseOrdersPage: React.FC = () => {
           Refresh
         </button>
       </div>
+
+      {/* Success Notification Banner */}
+      {actionSuccessMessage && (
+        <div className="p-3 bg-emerald-950/60 border border-emerald-800/80 rounded-xl flex items-center gap-2 text-xs text-emerald-300">
+          <ShieldCheck className="w-4 h-4 text-emerald-400 flex-shrink-0" />
+          <span>{actionSuccessMessage}</span>
+        </div>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: PO List */}
@@ -118,7 +187,7 @@ export const PurchaseOrdersPage: React.FC = () => {
             <>
               {/* Overview Card */}
               <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 shadow-xl">
-                <div className="flex items-center justify-between pb-4 border-b border-slate-800">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-slate-800 gap-3">
                   <div>
                     <h3 className="text-base font-bold text-white flex items-center gap-2">
                       {selectedPoDetails.po_number} Details
@@ -127,11 +196,23 @@ export const PurchaseOrdersPage: React.FC = () => {
                       Supplier: <strong className="text-slate-200">{selectedPoDetails.supplier_name}</strong> &bull; GSTIN: {selectedPoDetails.supplier_gstin}
                     </p>
                   </div>
-                  <div className="text-right">
-                    <div className="text-xs text-slate-400">Total Authorized Amount</div>
-                    <div className="text-lg font-bold text-emerald-400">
-                      Rs {Number(selectedPoDetails.total_amount).toLocaleString('en-IN')}
+                  <div className="flex items-center gap-3">
+                    <div className="text-right">
+                      <div className="text-[10px] text-slate-400">Total Authorized Amount</div>
+                      <div className="text-base font-bold text-emerald-400">
+                        Rs {Number(selectedPoDetails.total_amount).toLocaleString('en-IN')}
+                      </div>
                     </div>
+                    {canRequestPriceChange && (
+                      <button
+                        onClick={handleOpenPriceModal}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 transition shadow"
+                        title="Propose unit price modification under Maker-Checker governance"
+                      >
+                        <Edit3 className="w-3.5 h-3.5" />
+                        Modify Price
+                      </button>
+                    )}
                   </div>
                 </div>
 
@@ -197,7 +278,7 @@ export const PurchaseOrdersPage: React.FC = () => {
                             {isUnapproved ? (
                               <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-300 bg-amber-900/60 border border-amber-700 px-2 py-0.5 rounded-full">
                                 <AlertTriangle className="w-3 h-3 text-amber-400" />
-                                UNAPPROVED MODIFICATION
+                                UNAUTHORIZED MODIFICATION
                               </span>
                             ) : (
                               <span className="inline-flex items-center gap-1 text-[10px] font-bold text-emerald-400 bg-emerald-950 border border-emerald-800 px-2 py-0.5 rounded-full">
@@ -233,6 +314,121 @@ export const PurchaseOrdersPage: React.FC = () => {
           )}
         </div>
       </div>
+
+      {/* Modal: Request PO Price Change */}
+      {isPriceModalOpen && selectedPoDetails && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-md shadow-2xl overflow-hidden">
+            <div className="p-4 border-b border-slate-800 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Edit3 className="w-5 h-5 text-amber-400" />
+                <h3 className="text-sm font-bold text-white">
+                  Propose Price Modification: {selectedPoDetails.po_number}
+                </h3>
+              </div>
+              <button
+                onClick={() => setIsPriceModalOpen(false)}
+                className="text-slate-400 hover:text-white transition"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <form onSubmit={handleSubmitPriceChange} className="p-4 space-y-4 text-xs">
+              {priceModalError && (
+                <div className="p-2.5 bg-rose-950/60 border border-rose-800 rounded-lg text-rose-300 flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <span>{priceModalError}</span>
+                </div>
+              )}
+
+              <div className="p-3 bg-sky-950/40 border border-sky-800/60 rounded-xl space-y-1">
+                <div className="text-[11px] font-semibold text-sky-300 flex items-center gap-1.5">
+                  <ShieldCheck className="w-3.5 h-3.5" />
+                  Maker-Checker Governance Notice
+                </div>
+                <p className="text-[10px] text-slate-300 leading-relaxed">
+                  Price changes do not take effect immediately. Submitting this form creates an approval request.
+                  A separate <strong>Finance Manager</strong> must review and approve before the baseline contract price is updated.
+                </p>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                  Item Description
+                </label>
+                <input
+                  type="text"
+                  disabled
+                  value={selectedPoDetails.lines?.[0]?.item_name || 'Teak Wood 100kg'}
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-400 font-medium cursor-not-allowed"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                    Current Approved Price
+                  </label>
+                  <input
+                    type="text"
+                    disabled
+                    value={`Rs ${selectedPoDetails.lines?.[0]?.unit_price || '500'}`}
+                    className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-slate-400 font-mono cursor-not-allowed"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-amber-300 mb-1">
+                    Proposed New Price (Rs) *
+                  </label>
+                  <input
+                    type="number"
+                    min="1"
+                    step="0.01"
+                    value={newUnitPrice}
+                    onChange={(e) => setNewUnitPrice(e.target.value)}
+                    placeholder="e.g. 700"
+                    className="w-full bg-slate-950 border border-amber-600/60 rounded-lg px-3 py-2 text-white font-mono font-bold focus:outline-none focus:border-amber-400"
+                    required
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-300 mb-1">
+                  Business Justification / Renegotiation Reason *
+                </label>
+                <textarea
+                  rows={2}
+                  value={changeReason}
+                  onChange={(e) => setChangeReason(e.target.value)}
+                  placeholder="Explain why the contract price was renegotiated..."
+                  className="w-full bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-white focus:outline-none focus:border-amber-500"
+                  required
+                />
+              </div>
+
+              <div className="pt-2 flex items-center justify-end gap-2 border-t border-slate-800">
+                <button
+                  type="button"
+                  onClick={() => setIsPriceModalOpen(false)}
+                  className="px-3 py-1.5 rounded-lg border border-slate-700 text-slate-300 hover:bg-slate-800 transition"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={submittingPrice}
+                  className="px-4 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-semibold shadow-md transition disabled:opacity-50"
+                >
+                  {submittingPrice ? 'Submitting...' : 'Submit Modification'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

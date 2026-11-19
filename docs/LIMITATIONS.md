@@ -12,7 +12,7 @@ This document provides transparent, factual disclosures regarding the current pr
 
 ## 2. Sample Data Disclaimer
 - **Empirical Context**: All suppliers, purchase orders, goods receipts, and invoices are **sample demo records** specifically constructed to demonstrate financial leakage scenarios (such as Section 6 demo scenario).
-- **Labeling Standard**: In compliance with Golden Rule #4, all demo data is explicitly labeled **"Sample data"** throughout the user interface, API payloads, and report exports.
+- **Data Boundary**: In compliance with Golden Rule #4, demo data lives strictly in the seed scripts and test fixtures; the UI maintains a clean, modern interface without an intrusive sample-data banner.
 
 ---
 

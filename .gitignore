@@ -48,7 +48,16 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Runtime user uploads (preserve directory with .gitkeep)
+# Database dumps & backups
+*.dump
+*.dmp
+*.sql.bak
+*.sql.gz
+*.tar.gz
+
+# Runtime user uploads (preserve directory structure with .gitkeep)
+uploads/*
+!uploads/.gitkeep
 uploads/invoices/*
 !uploads/invoices/.gitkeep
 temp/

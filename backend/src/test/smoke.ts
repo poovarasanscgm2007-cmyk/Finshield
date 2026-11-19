@@ -15,7 +15,7 @@ const results: TestResult[] = [];
 async function runSmokeTests() {
   console.log('===============================================================');
   console.log(' FINSHIELD AI: Comprehensive Automated Smoke Test Suite');
-  console.log(' Testing Key Flows Across Phases 1, 2, 3, and 4');
+  console.log(' Testing All Key Operational Flows & Verification Gates');
   console.log('===============================================================\n');
 
   // Start in-process HTTP test server on an ephemeral port

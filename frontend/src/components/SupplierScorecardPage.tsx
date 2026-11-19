@@ -224,7 +224,6 @@ export const SupplierScorecardPage: React.FC<SupplierScorecardPageProps> = ({
                 <div>
                   <div className="flex items-center space-x-2">
                     <span className="text-base font-bold text-slate-900">{selectedScorecard.supplier_name}</span>
-                    <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-[10px] rounded font-semibold">Sample data</span>
                   </div>
                   <p className="text-xs text-slate-500 mt-0.5">
                     GSTIN: <span className="font-mono text-slate-700">{selectedScorecard.gstin}</span> | PAN: <span className="font-mono text-slate-700">{selectedScorecard.pan}</span>

@@ -138,7 +138,7 @@ export const LoginPage: React.FC = () => {
           <div className="flex items-center justify-between mb-2">
             <span className="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
               <UserCheck className="w-3.5 h-3.5 text-amber-400" />
-              Demo Logins (Sample Data)
+              Demo Accounts (Quick Sign-In)
             </span>
             <span className="text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-1.5 py-0.5 rounded">
               Click to autofill

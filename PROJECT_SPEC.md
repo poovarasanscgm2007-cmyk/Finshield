@@ -8,7 +8,7 @@ Tagline: "Beyond Invoice Matching: Catch Financial Risk and GST Loss Before You 
 1. NO fake buttons, NO hardcoded results. Features 1 to 8 below must have real working logic.
 2. AI NEVER releases payment. Final payment approval is always a human with the right role.
 3. Risk score = investigation priority, NOT a fraud verdict. Every score must show a list of reasons. Rules and weights must be configurable.
-4. All demo data is SAMPLE data and must be clearly labelled "Sample data" in the UI.
+4. Demo data lives only in the seed scripts; the UI does not show a sample-data banner.
 5. Every important action is written to a hash-chained audit log.
 6. Implement only the phase requested. Do not touch unrelated modules.
 7. After each task: list changed files, how to run, how to test.
