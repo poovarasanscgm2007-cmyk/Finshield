@@ -1,0 +1,69 @@
+{
+  "scenario_name": "ABC Manufacturing & Supplier A Demonstration Scenario",
+  "is_sample_data": true,
+  "buyer": {
+    "name": "ABC Manufacturing (sample)",
+    "gstin": "27AAACA1234A1Z1",
+    "state": "Maharashtra"
+  },
+  "suppliers": [
+    {
+      "code": "SUPPLIER_A",
+      "name": "TimberCraft Woodworks (Supplier A) (Sample Data)",
+      "gstin": "27AAACT1234A1Z5",
+      "pan": "AAACT1234A",
+      "bank_identifier": "HDFC0001234-9876543210",
+      "address": "Plot 42, Wood Processing Zone, Pune, Maharashtra 411001",
+      "phone": "+91 98765 43210",
+      "status": "Active"
+    },
+    {
+      "code": "SUPPLIER_B",
+      "name": "Apex Timber Supplies (Supplier B) (Sample Data)",
+      "gstin": "27AABCA5678B1Z2",
+      "pan": "AABCA5678B",
+      "bank_identifier": "HDFC0001234-9876543210",
+      "address": "Unit 10, Metro Logistics Park, Pune, Maharashtra 411014",
+      "phone": "+91 98765 43211",
+      "status": "Active",
+      "note": "Shares same bank_identifier with Supplier A"
+    }
+  ],
+  "purchase_order": {
+    "po_number": "PO-101",
+    "item": "Industrial Hardwood (Sample Wood)",
+    "ordered_quantity": 100,
+    "unit": "kg",
+    "original_unit_price": 500,
+    "modified_unit_price": 700,
+    "modified_by": "Employee 102",
+    "approval_record": null
+  },
+  "goods_receipt_note": {
+    "grn_number": "GRN-101",
+    "received_quantity": 80,
+    "unit": "kg",
+    "status": "Shortage received (20 kg discrepancy)"
+  },
+  "invoice": {
+    "invoice_number": "INV-101",
+    "billed_quantity": 100,
+    "unit_price": 500,
+    "subtotal": 50000,
+    "cgst": 4500,
+    "sgst": 4500,
+    "total": 59000,
+    "gstr2b_status": "NOT PRESENT in GSTR-2B (Rs 9,000 ITC at risk)"
+  },
+  "historical_invoices": [
+    { "invoice_number": "INV-HIST-01", "repeated_charge": 500 },
+    { "invoice_number": "INV-HIST-02", "repeated_charge": 700 },
+    { "invoice_number": "INV-HIST-03", "repeated_charge": 1000 },
+    { "invoice_number": "INV-HIST-04", "repeated_charge": 500 },
+    { "invoice_number": "INV-HIST-05", "repeated_charge": 700 },
+    { "invoice_number": "INV-HIST-06", "repeated_charge": 1000 },
+    { "invoice_number": "INV-HIST-07", "repeated_charge": 500 },
+    { "invoice_number": "INV-HIST-08", "repeated_charge": 700 },
+    { "invoice_number": "INV-HIST-09", "repeated_charge": 1000 }
+  ]
+}

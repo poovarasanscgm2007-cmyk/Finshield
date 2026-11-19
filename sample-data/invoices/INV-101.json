@@ -1,0 +1,28 @@
+{
+  "invoice_number": "INV-101",
+  "normalized_invoice_number": "INV101",
+  "irn": "3b48f9361adce6e7194f4a3e9819ec417a8c3d97f1f0a3592bc1784918e9c402",
+  "supplier_name": "TimberCraft Woodworks (Supplier A)",
+  "supplier_gstin": "27AAACT1234A1Z5",
+  "supplier_pan": "AAACT1234A",
+  "buyer_name": "ABC Manufacturing (sample)",
+  "buyer_gstin": "27AAACA1234A1Z1",
+  "po_reference": "PO-101",
+  "invoice_date": "2026-11-08",
+  "line_items": [
+    {
+      "item_name": "Teak Wood 100kg (Sample Data)",
+      "quantity": 100.0,
+      "unit": "kg",
+      "unit_price": 500.0,
+      "total_price": 50000.0,
+      "tax_rate": 18.0
+    }
+  ],
+  "subtotal": 50000.0,
+  "cgst": 4500.0,
+  "sgst": 4500.0,
+  "igst": 0.0,
+  "total": 59000.0,
+  "is_sample_data": true
+}

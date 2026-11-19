@@ -1,0 +1,50 @@
+[
+  {
+    "gstin_supplier": "27AAACT1234A1Z5",
+    "supplier_name": "TimberCraft Woodworks (Supplier A)",
+    "invoice_number": "INV-HIST-08",
+    "invoice_date": "2026-09-28",
+    "invoice_value": 63366.00,
+    "taxable_value": 53700.00,
+    "cgst": 4833.00,
+    "sgst": 4833.00,
+    "igst": 0.00,
+    "filing_period": "2026-09"
+  },
+  {
+    "gstin_supplier": "27AAACT1234A1Z5",
+    "supplier_name": "TimberCraft Woodworks (Supplier A)",
+    "invoice_number": "INV-HIST-09",
+    "invoice_date": "2026-10-18",
+    "invoice_value": 77880.00,
+    "taxable_value": 66000.00,
+    "cgst": 5940.00,
+    "sgst": 5940.00,
+    "igst": 0.00,
+    "filing_period": "2026-10"
+  },
+  {
+    "gstin_supplier": "27AABCA5678B1Z2",
+    "supplier_name": "Apex Timber Supplies (Supplier B)",
+    "invoice_number": "INV-B-201",
+    "invoice_date": "2026-11-02",
+    "invoice_value": 41300.00,
+    "taxable_value": 35000.00,
+    "cgst": 3150.00,
+    "sgst": 3150.00,
+    "igst": 0.00,
+    "filing_period": "2026-11"
+  },
+  {
+    "gstin_supplier": "27AAACG9999K1Z8",
+    "supplier_name": "Metro Metal Distributors",
+    "invoice_number": "INV-STEEL-44",
+    "invoice_date": "2026-11-04",
+    "invoice_value": 118000.00,
+    "taxable_value": 100000.00,
+    "cgst": 9000.00,
+    "sgst": 9000.00,
+    "igst": 0.00,
+    "filing_period": "2026-11"
+  }
+]
