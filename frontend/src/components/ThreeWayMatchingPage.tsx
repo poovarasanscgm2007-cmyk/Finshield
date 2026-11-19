@@ -13,6 +13,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { Invoice } from '../types/auth';
 import ThreeWayMatchModal from './ThreeWayMatchModal';
+import { formatCurrency, formatDate } from '../utils/formatters';
 
 export const ThreeWayMatchingPage: React.FC = () => {
   const { authFetch } = useAuth();
@@ -215,9 +216,9 @@ export const ThreeWayMatchingPage: React.FC = () => {
                         )}
                       </td>
                       <td className="py-3 px-4 font-mono font-bold text-slate-200">
-                        Rs {Number(inv.total).toLocaleString('en-IN')}
+                        Rs {formatCurrency(inv.total)}
                         <div className="text-[10px] text-slate-500 font-sans font-normal">
-                          {new Date(inv.invoice_date).toLocaleDateString()}
+                          {formatDate(inv.invoice_date)}
                         </div>
                       </td>
                       <td className="py-3 px-4">

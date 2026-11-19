@@ -14,6 +14,7 @@ import {
   Lock
 } from 'lucide-react';
 import { Investigation, User } from '../types/auth';
+import { safeArray, formatDateTime, safeJsonParse } from '../utils/formatters';
 
 interface InvestigationCenterPageProps {
   currentUser: User | null;
@@ -388,7 +389,7 @@ export const InvestigationCenterPage: React.FC<InvestigationCenterPageProps> = (
                   </h4>
                   <div className="bg-slate-950 rounded-xl p-3.5 border border-slate-800 font-mono text-xs text-slate-300 overflow-x-auto max-h-56">
                     <pre className="whitespace-pre-wrap">
-                      {JSON.stringify(selectedInvestigation.evidence, null, 2)}
+                      {JSON.stringify(safeJsonParse(selectedInvestigation.evidence, {}), null, 2)}
                     </pre>
                   </div>
                 </div>
@@ -414,7 +415,7 @@ export const InvestigationCenterPage: React.FC<InvestigationCenterPageProps> = (
                     </div>
                     <p className="text-xs text-slate-300">{selectedInvestigation.revalidation_result.reason}</p>
                     <div className="text-[10px] text-slate-400 mt-2 font-mono">
-                      Validated at: {new Date(selectedInvestigation.revalidation_result.revalidated_at).toLocaleString()}
+                      Validated at: {formatDateTime(selectedInvestigation.revalidation_result.revalidated_at)}
                     </div>
                   </div>
                 )}
@@ -426,13 +427,13 @@ export const InvestigationCenterPage: React.FC<InvestigationCenterPageProps> = (
                     <span>Department Activity & Comments</span>
                   </h4>
                   <div className="space-y-2.5 max-h-48 overflow-y-auto pr-1">
-                    {selectedInvestigation.comments.map((comm) => (
+                    {safeArray(selectedInvestigation.comments).map((comm) => (
                       <div key={comm.id} className="p-2.5 rounded-lg bg-slate-950 border border-slate-800/80 text-xs">
                         <div className="flex items-center justify-between text-[11px] text-slate-400 mb-1">
                           <span className="font-semibold text-slate-200">
-                            {comm.user_name} ({comm.user_role})
+                            {comm.user_name || 'System User'} ({comm.user_role || 'Staff'})
                           </span>
-                          <span>{new Date(comm.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+                          <span>{formatDateTime(comm.created_at)}</span>
                         </div>
                         <p className="text-slate-300">{comm.text}</p>
                       </div>

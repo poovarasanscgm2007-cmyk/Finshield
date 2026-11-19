@@ -564,14 +564,17 @@ router.get('/:id/gst-check', authenticate, async (req: Request, res: Response): 
     const result = await checkInvoiceGst(id, req.user?.id);
     res.status(200).json({
       status: 'ok',
+      gst_check: result,
       ...result
     });
   } catch (err: any) {
-    console.error('GST check failed:', err);
-    res.status(500).json({
+    const isNotFound = err.message?.includes('not found');
+    const statusCode = isNotFound ? 404 : 500;
+    if (!isNotFound) console.error('GST check failed:', err);
+    res.status(statusCode).json({
       status: 'error',
-      statusCode: 500,
-      message: `GST check failed: ${err.message || 'Execution error'}`
+      statusCode,
+      message: err.message || 'GST check failed.'
     });
   }
 });
@@ -589,11 +592,13 @@ router.get('/:id/risk', authenticate, async (req: Request, res: Response): Promi
       assessment
     });
   } catch (err: any) {
-    console.error('Invoice risk assessment failed:', err);
-    res.status(500).json({
+    const isNotFound = err.message?.includes('not found');
+    const statusCode = isNotFound ? 404 : 500;
+    if (!isNotFound) console.error('Invoice risk assessment failed:', err);
+    res.status(statusCode).json({
       status: 'error',
-      statusCode: 500,
-      message: `Risk evaluation failed: ${err.message || 'Execution error'}`
+      statusCode,
+      message: err.message || 'Risk evaluation failed.'
     });
   }
 });
@@ -603,7 +608,7 @@ router.get('/:id/risk', authenticate, async (req: Request, res: Response): Promi
  * Retrieves the latest 3-way matching result and compared values
  */
 router.get(
-  '/:id/match-result',
+  ['/:id/match-result', '/:id/matching'],
   authenticate,
   async (req: Request, res: Response): Promise<void> => {
     const { id } = req.params;
@@ -673,7 +678,7 @@ router.get(
  * Multi-level approval: High-risk invoices require two distinct Finance approvers.
  */
 router.post(
-  '/:id/approve-payment',
+  ['/:id/approve-payment', '/:id/approve'],
   authenticate,
   requireRole('Finance Manager'),
   async (req: Request, res: Response): Promise<void> => {
@@ -783,7 +788,8 @@ router.post(
           res.status(200).json({
             status: 'ok',
             message: 'Final payment approval authorized. Payment released.',
-            payment_status: 'APPROVED'
+            payment_status: 'APPROVED',
+            invoice_status: 'APPROVED'
           });
           return;
         }
@@ -806,7 +812,8 @@ router.post(
       res.status(200).json({
         status: 'ok',
         message: 'Payment approval authorized. Payment released.',
-        payment_status: 'APPROVED'
+        payment_status: 'APPROVED',
+        invoice_status: 'APPROVED'
       });
     } catch (err: any) {
       console.error('Payment approval error:', err);

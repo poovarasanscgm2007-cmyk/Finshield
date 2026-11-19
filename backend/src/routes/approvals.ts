@@ -107,6 +107,50 @@ router.post('/:id/approve', authenticate, async (req: Request, res: Response): P
 });
 
 /**
+ * POST /api/approvals/:id/decide
+ * Decides (approves or rejects) a request enforcing maker-checker rules
+ */
+router.post('/:id/decide', authenticate, async (req: Request, res: Response): Promise<void> => {
+  const { id } = req.params;
+  const { decision, notes, comment, reason } = req.body;
+  const decisionUpper = (decision || '').toUpperCase();
+
+  try {
+    if (decisionUpper === 'APPROVED' || decisionUpper === 'APPROVE') {
+      const approval = await approveRequest(id, req.user!.id, req.user!.role, notes || comment);
+      res.status(200).json({
+        status: 'ok',
+        message: 'Approval granted successfully.',
+        approval
+      });
+    } else {
+      const rejectReason = reason || comment || notes || 'Rejected by approver';
+      const approval = await rejectRequest(id, req.user!.id, req.user!.role, rejectReason);
+      res.status(200).json({
+        status: 'ok',
+        message: 'Approval request rejected.',
+        approval
+      });
+    }
+  } catch (err: any) {
+    if (err instanceof MakerCheckerError) {
+      res.status(err.statusCode).json({
+        status: 'error',
+        statusCode: err.statusCode,
+        message: err.message
+      });
+      return;
+    }
+    console.error('Error in POST /api/approvals/:id/decide:', err);
+    res.status(500).json({
+      status: 'error',
+      statusCode: 500,
+      message: 'Failed to process decision.'
+    });
+  }
+});
+
+/**
  * POST /api/approvals/:id/reject
  * Rejects a request enforcing maker-checker rules
  */

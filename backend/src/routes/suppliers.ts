@@ -145,11 +145,13 @@ router.get('/:id/overbilling', authenticate, async (req: Request, res: Response)
       ...report
     });
   } catch (err: any) {
-    console.error('Error analyzing supplier overbilling:', err);
-    res.status(500).json({
+    const isNotFound = err.message?.includes('not found');
+    const statusCode = isNotFound ? 404 : 500;
+    if (!isNotFound) console.error('Error analyzing supplier overbilling:', err);
+    res.status(statusCode).json({
       status: 'error',
-      statusCode: 500,
-      message: `Failed to analyze supplier overbilling: ${err.message || 'Execution error'}`
+      statusCode,
+      message: err.message || 'Failed to analyze supplier overbilling.'
     });
   }
 });
@@ -169,11 +171,13 @@ router.get('/:id/risk', authenticate, async (req: Request, res: Response): Promi
       assessment
     });
   } catch (err: any) {
-    console.error('Error evaluating supplier risk:', err);
-    res.status(500).json({
+    const isNotFound = err.message?.includes('not found');
+    const statusCode = isNotFound ? 404 : 500;
+    if (!isNotFound) console.error('Error evaluating supplier risk:', err);
+    res.status(statusCode).json({
       status: 'error',
-      statusCode: 500,
-      message: `Failed to evaluate supplier risk: ${err.message || 'Execution error'}`
+      statusCode,
+      message: err.message || 'Failed to evaluate supplier risk.'
     });
   }
 });
@@ -192,11 +196,13 @@ router.get('/:id/scorecard', authenticate, async (req: Request, res: Response): 
       scorecard
     });
   } catch (err: any) {
-    console.error('Error computing supplier scorecard:', err);
-    res.status(500).json({
+    const isNotFound = err.message?.includes('not found');
+    const statusCode = isNotFound ? 404 : 500;
+    if (!isNotFound) console.error('Error computing supplier scorecard:', err);
+    res.status(statusCode).json({
       status: 'error',
-      statusCode: 500,
-      message: `Failed to compute supplier scorecard: ${err.message || 'Execution error'}`
+      statusCode,
+      message: err.message || 'Failed to compute supplier scorecard.'
     });
   }
 });

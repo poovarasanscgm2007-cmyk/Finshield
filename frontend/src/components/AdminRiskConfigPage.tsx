@@ -10,6 +10,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { RiskRuleConfig } from '../types/auth';
+import { safeArray } from '../utils/formatters';
 
 export const AdminRiskConfigPage: React.FC = () => {
   const { authFetch, user } = useAuth();
@@ -193,7 +194,7 @@ export const AdminRiskConfigPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/80 text-slate-300 text-xs font-mono">
-                {rules.map((rule) => {
+                {safeArray(rules).map((rule) => {
                   const currentEdit = editedRules[rule.rule_code] || {
                     weight: Number(rule.weight),
                     threshold: Number(rule.threshold),

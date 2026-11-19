@@ -46,7 +46,7 @@ interface NavItem {
   allowedRoles: UserRole[];
 }
 
-const NAV_ITEMS: NavItem[] = [
+export const NAV_ITEMS: NavItem[] = [
   {
     id: 'dashboard',
     label: 'Dashboard & KPIs',
@@ -144,6 +144,17 @@ const NAV_ITEMS: NavItem[] = [
     allowedRoles: ['AP Employee', 'Procurement Employee', 'Warehouse Employee', 'Finance Manager', 'Admin']
   }
 ];
+
+export function isTabAllowed(tab: NavTab, role: UserRole): boolean {
+  const item = NAV_ITEMS.find((n) => n.id === tab);
+  if (!item) return true;
+  return item.allowedRoles.includes(role);
+}
+
+export function getTabAllowedRoles(tab: NavTab): UserRole[] {
+  const item = NAV_ITEMS.find((n) => n.id === tab);
+  return item ? item.allowedRoles : [];
+}
 
 export const Sidebar: React.FC<SidebarProps> = ({ currentTab, onSelectTab }) => {
   const { user } = useAuth();

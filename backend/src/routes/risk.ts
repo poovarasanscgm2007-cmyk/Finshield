@@ -35,7 +35,7 @@ router.get('/high', authenticate, async (_req: Request, res: Response): Promise<
  * GET /api/risk/config
  * Retrieves configurable risk rule weights and thresholds
  */
-router.get('/config', authenticate, async (_req: Request, res: Response): Promise<void> => {
+router.get(['/config', '/rules'], authenticate, async (_req: Request, res: Response): Promise<void> => {
   try {
     const rulesRes = await pool.query(
       `SELECT id, rule_code, rule_name, description, weight, threshold, is_active, updated_at 
@@ -63,7 +63,7 @@ router.get('/config', authenticate, async (_req: Request, res: Response): Promis
  * Admin only: Updates weight and threshold for a risk rule
  */
 router.put(
-  '/config/:ruleCode',
+  ['/config/:ruleCode', '/rules/:ruleCode'],
   authenticate,
   requireRole('Admin'),
   async (req: Request, res: Response): Promise<void> => {
@@ -81,7 +81,7 @@ router.put(
 
     try {
       const existingRes = await pool.query(
-        `SELECT * FROM risk_rules_config WHERE rule_code = $1`,
+        `SELECT * FROM risk_rules_config WHERE rule_code = $1 OR id = $1`,
         [ruleCode]
       );
 

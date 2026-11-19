@@ -32,6 +32,7 @@ import {
   Investigation
 } from '../types/auth';
 import { CopilotChatPanel } from './CopilotChatPanel';
+import { safeNumber, formatCurrency, formatDate, safeArray } from '../utils/formatters';
 
 interface ThreeWayMatchModalProps {
   invoiceId: string;
@@ -767,16 +768,16 @@ export const ThreeWayMatchModal: React.FC<ThreeWayMatchModalProps> = ({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-800/80 text-slate-300 font-mono text-[11px]">
-                      {overbilling.evidence_invoices.slice(0, 5).map((ev, i) => (
+                      {safeArray(overbilling.evidence_invoices).slice(0, 5).map((ev: any, i) => (
                         <tr key={i} className="hover:bg-slate-950/40">
-                          <td className="py-2 px-3 font-bold text-white font-sans">{ev.invoice_number}</td>
-                          <td className="py-2 px-3 text-slate-400">{new Date(ev.invoice_date).toLocaleDateString()}</td>
-                          <td className="py-2 px-3 font-sans text-amber-300">{ev.extra_charge_name}</td>
+                          <td className="py-2 px-3 font-bold text-white font-sans">{ev.invoice_number || 'N/A'}</td>
+                          <td className="py-2 px-3 text-slate-400">{formatDate(ev.invoice_date)}</td>
+                          <td className="py-2 px-3 font-sans text-amber-300">{ev.extra_charge_name || ev.item_name || 'Extra Charge'}</td>
                           <td className="py-2 px-3 text-right text-rose-300 font-bold">
-                            ₹ {ev.extra_charge_amount.toFixed(2)}
+                            ₹ {formatCurrency(ev.extra_charge_amount ?? ev.amount ?? 0)}
                           </td>
                           <td className="py-2 px-3 text-right text-slate-300">
-                            ₹ {ev.total.toFixed(2)}
+                            ₹ {formatCurrency(ev.total ?? ev.amount ?? 0)}
                           </td>
                         </tr>
                       ))}
@@ -901,11 +902,11 @@ export const ThreeWayMatchModal: React.FC<ThreeWayMatchModalProps> = ({
                   <div className="space-y-1.5 text-xs text-slate-300">
                     <div className="flex justify-between">
                       <span className="text-slate-500">Invoice Date:</span>
-                      <span className="font-medium text-slate-200">{new Date(invoice.invoice_date).toLocaleDateString()}</span>
+                      <span className="font-medium text-slate-200">{formatDate(invoice.invoice_date)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500">Billed Total:</span>
-                      <span className="font-mono font-bold text-white">Rs {Number(invoice.total).toLocaleString('en-IN')}</span>
+                      <span className="font-mono font-bold text-white">Rs {formatCurrency(invoice.total)}</span>
                     </div>
                     <div className="flex justify-between">
                       <span className="text-slate-500">Current Status:</span>
@@ -960,44 +961,51 @@ export const ThreeWayMatchModal: React.FC<ThreeWayMatchModalProps> = ({
                     </thead>
                     <tbody className="divide-y divide-slate-800/80 text-slate-300 font-mono text-[11px]">
                       {compared?.items && compared.items.length > 0 ? (
-                        compared.items.map((item, idx) => {
+                        compared.items.map((item: any, idx: number) => {
+                          const poQty = safeNumber(item.po_qty, 0);
+                          const poPrice = safeNumber(item.po_unit_price, 0);
+                          const poApprovedPrice = safeNumber(item.po_approved_price, 0);
+                          const grnQty = safeNumber(item.grn_qty, 0);
+                          const invQty = safeNumber(item.invoice_qty, 0);
+                          const invPrice = safeNumber(item.invoice_unit_price, 0);
+                          const invBilledTotal = invQty * invPrice;
                           const qtyMismatch = !item.qty_matched;
                           const priceMismatch = !item.price_matched;
 
                           return (
                             <tr key={idx} className="hover:bg-slate-900/30 transition">
                               <td className="py-3 px-3 font-sans font-medium text-slate-200 border-r border-slate-800">
-                                {item.item_name}
+                                {item.item_name || 'Item'}
                               </td>
 
-                              <td className="py-3 px-3 text-right">{item.po_qty}</td>
-                              <td className="py-3 px-3 text-right">Rs {item.po_unit_price.toFixed(2)}</td>
+                              <td className="py-3 px-3 text-right">{poQty}</td>
+                              <td className="py-3 px-3 text-right">Rs {poPrice.toFixed(2)}</td>
                               <td className={`py-3 px-3 text-right border-r border-slate-800 font-bold ${
                                 priceMismatch ? 'bg-rose-950/60 text-rose-300 font-bold border border-rose-800' : 'text-sky-300'
                               }`}>
-                                Rs {item.po_approved_price.toFixed(2)}
+                                Rs {poApprovedPrice.toFixed(2)}
                               </td>
 
                               <td className={`py-3 px-3 text-right border-r border-slate-800 font-bold ${
                                 qtyMismatch ? 'bg-rose-950/70 text-rose-300 border-l border-r border-rose-800' : 'text-indigo-300'
                               }`}>
-                                {item.grn_qty}
+                                {grnQty}
                               </td>
 
                               <td className={`py-3 px-3 text-right font-bold ${
                                 qtyMismatch ? 'bg-rose-950/70 text-rose-300 border-l border-r border-rose-800' : 'text-slate-200'
                               }`}>
-                                {item.invoice_qty}
+                                {invQty}
                               </td>
 
                               <td className={`py-3 px-3 text-right font-bold ${
                                 priceMismatch ? 'bg-rose-950/60 text-rose-300 border-l border-r border-rose-800' : 'text-slate-200'
                               }`}>
-                                Rs {item.invoice_unit_price.toFixed(2)}
+                                Rs {invPrice.toFixed(2)}
                               </td>
 
                               <td className="py-3 px-3 text-right border-r border-slate-800 text-white font-bold">
-                                Rs {(item.invoice_qty * item.invoice_unit_price).toFixed(2)}
+                                Rs {invBilledTotal.toFixed(2)}
                               </td>
 
                               <td className="py-3 px-3 text-center">

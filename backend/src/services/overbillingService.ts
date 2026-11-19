@@ -6,6 +6,9 @@ export interface ExtraChargeEvidence {
   invoice_date: string;
   item_name: string;
   amount: number;
+  extra_charge_name: string;
+  extra_charge_amount: number;
+  total: number;
 }
 
 export interface OverbillingReport {
@@ -114,7 +117,10 @@ export async function detectSupplierOverbilling(
           invoice_number: inv.invoice_number,
           invoice_date: inv.invoice_date,
           item_name: line.item_name,
-          amount: totalPrice
+          amount: totalPrice,
+          extra_charge_name: line.item_name,
+          extra_charge_amount: totalPrice,
+          total: parseFloat(inv.total) || totalPrice
         });
         distinctAmounts.add(totalPrice);
       } else {

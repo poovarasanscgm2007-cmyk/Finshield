@@ -17,6 +17,9 @@ import { SupplierGraphPage } from './components/SupplierGraphPage';
 import { SupplierScorecardPage } from './components/SupplierScorecardPage';
 import { DemoGuidePage } from './components/DemoGuidePage';
 import ThreeWayMatchModal from './components/ThreeWayMatchModal';
+import ErrorBoundary from './components/ErrorBoundary';
+import AccessDeniedPage from './components/AccessDeniedPage';
+import { isTabAllowed, getTabAllowedRoles } from './components/Sidebar';
 import {
   Server,
   CheckCircle2,
@@ -159,7 +162,15 @@ const AppContent: React.FC = () => {
         <Sidebar currentTab={currentTab} onSelectTab={setCurrentTab} />
 
         <main className="flex-1 overflow-y-auto p-6 bg-slate-950/50">
-          {currentTab === 'dashboard' && (
+          {!isTabAllowed(currentTab, user.role) ? (
+            <AccessDeniedPage
+              requiredRoles={getTabAllowedRoles(currentTab)}
+              currentRole={user.role}
+              onGoBack={() => setCurrentTab('dashboard')}
+            />
+          ) : (
+            <ErrorBoundary fallbackTitle={`Error Loading ${currentTab.toUpperCase()} Module`} onReset={() => setCurrentTab('dashboard')}>
+              {currentTab === 'dashboard' && (
             <div className="max-w-7xl mx-auto space-y-6">
               {/* Header section */}
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900/60 p-5 rounded-2xl border border-slate-800">
@@ -582,6 +593,8 @@ const AppContent: React.FC = () => {
               <CopilotChatPanel embedded={true} />
             </div>
           )}
+            </ErrorBoundary>
+          )}
         </main>
       </div>
 
@@ -606,11 +619,13 @@ const AppContent: React.FC = () => {
 
       {/* 3-Way Match Modal */}
       {selectedInvoiceId && (
-        <ThreeWayMatchModal
-          invoiceId={selectedInvoiceId}
-          onClose={() => setSelectedInvoiceId(null)}
-          onMatchUpdated={() => fetchDashboardStats()}
-        />
+        <ErrorBoundary fallbackTitle="3-Way Match Inspector Error" onReset={() => setSelectedInvoiceId(null)}>
+          <ThreeWayMatchModal
+            invoiceId={selectedInvoiceId}
+            onClose={() => setSelectedInvoiceId(null)}
+            onMatchUpdated={() => fetchDashboardStats()}
+          />
+        </ErrorBoundary>
       )}
 
       <footer className="border-t border-slate-800 bg-slate-950 px-6 py-3 text-center text-xs text-slate-500">
@@ -622,9 +637,11 @@ const AppContent: React.FC = () => {
 
 export const App: React.FC = () => {
   return (
-    <AuthProvider>
-      <AppContent />
-    </AuthProvider>
+    <ErrorBoundary fallbackTitle="FINSHIELD AI System Error">
+      <AuthProvider>
+        <AppContent />
+      </AuthProvider>
+    </ErrorBoundary>
   );
 };
 

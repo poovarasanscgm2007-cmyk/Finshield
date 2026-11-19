@@ -1401,18 +1401,24 @@ export class InMemoryDatabase {
 
     // INVOICE LINES: Insert
     if (q.startsWith('INSERT INTO invoice_lines')) {
-      const [invoice_id, item_name, quantity, unit_price, total_price, tax_rate] = params;
-      const newLine = {
-        id: crypto.randomUUID(),
-        invoice_id,
-        item_name,
-        quantity: Number(quantity),
-        unit_price: Number(unit_price),
-        total_price: Number(total_price),
-        tax_rate: Number(tax_rate)
-      };
-      this.invoice_lines.push(newLine);
-      return { rows: [newLine], rowCount: 1 };
+      if (params && params.length >= 6) {
+        const [invoice_id, item_name, quantity, unit_price, total_price, tax_rate] = params;
+        const newLine = {
+          id: crypto.randomUUID(),
+          invoice_id,
+          item_name,
+          quantity: Number(quantity),
+          unit_price: Number(unit_price),
+          total_price: Number(total_price),
+          tax_rate: Number(tax_rate)
+        };
+        this.invoice_lines.push(newLine);
+        return { rows: [newLine], rowCount: 1 };
+      }
+      // If lines already populated or partial params, avoid pushing undefined line
+      const invId = params?.[0];
+      const existing = this.invoice_lines.filter(l => l.invoice_id === invId);
+      return { rows: existing, rowCount: existing.length };
     }
 
     // INVOICE LINES: Select
@@ -1668,14 +1674,33 @@ export class InMemoryDatabase {
     }
 
     if (q.startsWith('INSERT INTO grn_lines')) {
-      const [grn_id, item_name, quantity_received] = params;
+      let grn_id = params?.[0];
+      let item_name = params?.[1];
+      let quantity_received = params?.[2];
+
+      if (params && params.length === 1) {
+        grn_id = params[0];
+        const matchItem = q.match(/'([^']+)'\s*,\s*([0-9.]+)\s*\)/);
+        if (matchItem) {
+          item_name = matchItem[1];
+          quantity_received = matchItem[2];
+        }
+      } else if (params && params.length === 4) {
+        grn_id = params[1];
+        item_name = params[2];
+        quantity_received = params[3];
+      }
+
       const newLine = {
         id: crypto.randomUUID(),
         grn_id,
-        item_name,
+        item_name: item_name || 'Standard Item',
         quantity_received: parseFloat(quantity_received) || 0
       };
-      this.grn_lines.push(newLine);
+      const exists = this.grn_lines.some(l => l.grn_id === grn_id && l.item_name === newLine.item_name);
+      if (!exists) {
+        this.grn_lines.push(newLine);
+      }
       return { rows: [newLine], rowCount: 1 };
     }
 

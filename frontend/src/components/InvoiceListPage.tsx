@@ -19,6 +19,7 @@ import { Invoice } from '../types/auth';
 import InvoiceUploadModal from './InvoiceUploadModal';
 import InvoiceVerificationModal from './InvoiceVerificationModal';
 import ThreeWayMatchModal from './ThreeWayMatchModal';
+import { safeArray, formatCurrency, formatDate, safeJsonParse, safeNumber } from '../utils/formatters';
 
 export const InvoiceListPage: React.FC = () => {
   const { user, authFetch } = useAuth();
@@ -209,11 +210,15 @@ export const InvoiceListPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                {filteredInvoices.map((inv) => {
-                  const conf = inv.extraction_confidence;
-                  const avgConf = conf
-                    ? Math.round((Object.values(conf).reduce((a, b) => a + b, 0) / (Object.keys(conf).length || 1)) * 100)
-                    : null;
+                {safeArray(filteredInvoices).map((inv) => {
+                  const conf = safeJsonParse(inv.extraction_confidence, null);
+                  let avgConf: number | null = null;
+                  if (conf && typeof conf === 'object') {
+                    const vals = Object.values(conf).map((v) => safeNumber(v, 0));
+                    if (vals.length > 0) {
+                      avgConf = Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 100);
+                    }
+                  }
 
                   return (
                     <tr key={inv.id} className="hover:bg-slate-900/50 transition">
@@ -240,9 +245,9 @@ export const InvoiceListPage: React.FC = () => {
                         )}
                       </td>
                       <td className="py-3 px-4 font-mono font-bold text-slate-200">
-                        Rs {Number(inv.total).toLocaleString('en-IN')}
+                        Rs {formatCurrency(inv.total)}
                         <div className="text-[10px] text-slate-500 font-sans font-normal">
-                          {new Date(inv.invoice_date).toLocaleDateString()}
+                          {formatDate(inv.invoice_date)}
                         </div>
                       </td>
                       <td className="py-3 px-4">

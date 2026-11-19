@@ -10,6 +10,7 @@ import {
 import { useAuth } from '../context/AuthContext';
 import { Invoice } from '../types/auth';
 import ThreeWayMatchModal from './ThreeWayMatchModal';
+import { formatCurrency } from '../utils/formatters';
 
 export const GstCompliancePage: React.FC = () => {
   const { authFetch } = useAuth();
@@ -189,15 +190,15 @@ export const GstCompliancePage: React.FC = () => {
                       </td>
 
                       <td className="py-3.5 px-4 text-right font-mono">
-                        ₹ {Number(inv.subtotal || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        ₹ {formatCurrency(inv.subtotal || 0)}
                       </td>
 
                       <td className="py-3.5 px-4 text-right font-mono text-slate-300">
-                        ₹ {(Number(inv.cgst || 0) + Number(inv.sgst || 0)).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        ₹ {formatCurrency(Number(inv.cgst || 0) + Number(inv.sgst || 0))}
                       </td>
 
                       <td className="py-3.5 px-4 text-right font-mono text-slate-300">
-                        ₹ {Number(inv.igst || 0).toLocaleString('en-IN', { minimumFractionDigits: 2 })}
+                        ₹ {formatCurrency(inv.igst || 0)}
                       </td>
 
                       <td className="py-3.5 px-4 text-center font-sans">
@@ -214,7 +215,7 @@ export const GstCompliancePage: React.FC = () => {
 
                       <td className="py-3.5 px-4 text-right font-mono font-bold">
                         {itcRisk > 0 ? (
-                          <span className="text-rose-400">₹ {itcRisk.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</span>
+                          <span className="text-rose-400">₹ {formatCurrency(itcRisk)}</span>
                         ) : (
                           <span className="text-emerald-400">₹ 0.00</span>
                         )}

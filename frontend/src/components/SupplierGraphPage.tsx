@@ -289,7 +289,7 @@ export const SupplierGraphPage: React.FC<SupplierGraphPageProps> = ({
                 nodeRelSize={7}
                 nodeCanvasObjectMode={() => 'after'}
                 nodeCanvasObject={(node: any, ctx: CanvasRenderingContext2D, globalScale: number) => {
-                  const label = node.name.split(' ')[0] || node.name;
+                  const label = (node.name || 'Vendor').split(' ')[0];
                   const fontSize = 12 / globalScale;
                   ctx.font = `${fontSize}px Sans-Serif`;
                   ctx.textAlign = 'center';

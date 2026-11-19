@@ -10,11 +10,12 @@ const router = Router();
  * Accepts natural language questions, extracts entities, retrieves verified database facts,
  * and responds with evidence references and departmental recommended actions.
  */
-router.post('/ask', authenticate, async (req: Request, res: Response): Promise<void> => {
+router.post(['/ask', '/chat'], authenticate, async (req: Request, res: Response): Promise<void> => {
   try {
-    const { question, invoiceId } = req.body;
+    const rawQuestion = req.body.question || req.body.message;
+    const { invoiceId } = req.body;
 
-    if (!question || !question.trim()) {
+    if (!rawQuestion || !rawQuestion.trim()) {
       res.status(400).json({
         status: 'error',
         message: 'Question cannot be empty.'
@@ -22,7 +23,7 @@ router.post('/ask', authenticate, async (req: Request, res: Response): Promise<v
       return;
     }
 
-    const response = await askCopilot(question.trim(), invoiceId, {
+    const response = await askCopilot(rawQuestion.trim(), invoiceId, {
       id: req.user!.id,
       name: req.user!.name,
       role: req.user!.role

@@ -19,6 +19,7 @@ import {
   Cell
 } from 'recharts';
 import { User, SupplierScorecard } from '../types/auth';
+import { safeArray, formatCurrency, safeNumber } from '../utils/formatters';
 
 interface SupplierScorecardPageProps {
   currentUser: User;
@@ -249,10 +250,10 @@ export const SupplierScorecardPage: React.FC<SupplierScorecardPageProps> = ({
                 <div className="h-44 w-full bg-slate-50 p-2 rounded-lg border border-slate-200">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart
-                      data={selectedScorecard.metrics.map(m => ({
-                        name: m.name.split(' ')[0],
-                        score: m.score,
-                        fullName: m.name
+                      data={safeArray(selectedScorecard.metrics).map((m: any) => ({
+                        name: (m.name || 'Metric').split(' ')[0],
+                        score: safeNumber(m.score, 0),
+                        fullName: m.name || 'Metric'
                       }))}
                       margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                     >
@@ -263,7 +264,7 @@ export const SupplierScorecardPage: React.FC<SupplierScorecardPageProps> = ({
                         contentStyle={{ fontSize: '11px', borderRadius: '8px' }}
                       />
                       <Bar dataKey="score" radius={[4, 4, 0, 0]}>
-                        {selectedScorecard.metrics.map((entry, index) => (
+                        {safeArray(selectedScorecard.metrics).map((entry: any, index: number) => (
                           <Cell key={`cell-${index}`} fill={getBarColor(entry.score)} />
                         ))}
                       </Bar>
@@ -289,7 +290,7 @@ export const SupplierScorecardPage: React.FC<SupplierScorecardPageProps> = ({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-100">
-                      {selectedScorecard.metrics.map((m) => (
+                      {safeArray(selectedScorecard.metrics).map((m: any) => (
                         <tr key={m.key} className="hover:bg-slate-50/50">
                           <td className="p-2.5">
                             <span className="font-semibold text-slate-900 block">{m.name}</span>
@@ -303,7 +304,7 @@ export const SupplierScorecardPage: React.FC<SupplierScorecardPageProps> = ({
                           <td className="p-2.5 font-medium text-slate-600">{m.weight}%</td>
                           <td className="p-2.5 font-mono text-[11px] text-slate-600">{m.formula}</td>
                           <td className="p-2.5 text-[11px] text-slate-500 font-mono">
-                            {JSON.stringify(m.inputs).replace(/["{}]/g, '').replace(/,/g, ', ')}
+                            {JSON.stringify(m.inputs || {}).replace(/["{}]/g, '').replace(/,/g, ', ')}
                           </td>
                         </tr>
                       ))}
@@ -322,7 +323,7 @@ export const SupplierScorecardPage: React.FC<SupplierScorecardPageProps> = ({
                     </span>
                   </h3>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-48 overflow-y-auto">
-                    {selectedScorecard.evidence_invoices.map((inv) => (
+                    {safeArray(selectedScorecard.evidence_invoices).map((inv: any) => (
                       <div
                         key={inv.id}
                         className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg flex items-center justify-between text-xs"
@@ -336,7 +337,7 @@ export const SupplierScorecardPage: React.FC<SupplierScorecardPageProps> = ({
                               {inv.status}
                             </span>
                           </div>
-                          <p className="text-[10px] text-slate-500 mt-0.5">₹{inv.total.toLocaleString('en-IN')}</p>
+                          <p className="text-[10px] text-slate-500 mt-0.5">₹{formatCurrency(inv.total)}</p>
                         </div>
                         {onNavigateToInvoice && (
                           <button

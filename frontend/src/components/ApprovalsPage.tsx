@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { Approval } from '../types/auth';
+import { safeJsonParse } from '../utils/formatters';
 
 export const ApprovalsPage: React.FC = () => {
   const { user, authFetch } = useAuth();
@@ -261,7 +262,7 @@ export const ApprovalsPage: React.FC = () => {
                 {approvals.map((app) => {
                   const isPending = app.status === 'PENDING';
                   const isRequester = user?.id === app.requested_by;
-                  const payload = typeof app.payload === 'string' ? JSON.parse(app.payload) : app.payload;
+                  const payload = safeJsonParse<any>(app.payload, {});
 
                   return (
                     <tr key={app.id} className="hover:bg-slate-900/50 transition">

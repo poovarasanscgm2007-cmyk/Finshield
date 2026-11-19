@@ -11,6 +11,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { AuditEntry } from '../types/auth';
+import { safeJsonParse, safeArray, formatDateTime } from '../utils/formatters';
 
 export const AuditLogPage: React.FC = () => {
   const { authFetch } = useAuth();
@@ -188,9 +189,9 @@ export const AuditLogPage: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-800/60 text-slate-300">
-                {logs.map((entry) => {
-                  const isViolation = entry.action.includes('VIOLATION') || entry.action.includes('DENIED') || entry.action.includes('FAILURE');
-                  const payload = typeof entry.payload === 'string' ? JSON.parse(entry.payload) : entry.payload;
+                {safeArray(logs).map((entry) => {
+                  const isViolation = entry.action?.includes('VIOLATION') || entry.action?.includes('DENIED') || entry.action?.includes('FAILURE');
+                  const payload = safeJsonParse(entry.payload, {});
 
                   return (
                     <tr key={entry.id} className="hover:bg-slate-900/50 transition font-mono text-[11px]">
@@ -199,7 +200,7 @@ export const AuditLogPage: React.FC = () => {
                           className={`inline-block px-2 py-0.5 rounded text-[10px] font-semibold border ${
                             isViolation
                               ? 'bg-rose-950/80 text-rose-300 border-rose-800'
-                              : entry.action.includes('SUCCESS') || entry.action.includes('GRANTED')
+                              : entry.action?.includes('SUCCESS') || entry.action?.includes('GRANTED')
                               ? 'bg-emerald-950/80 text-emerald-300 border-emerald-800'
                               : 'bg-indigo-950/80 text-indigo-300 border-indigo-800'
                           }`}
@@ -226,16 +227,16 @@ export const AuditLogPage: React.FC = () => {
                       <td className="py-3 px-4 text-[10px] text-slate-400">
                         <div className="flex items-center gap-1">
                           <Hash className="w-3 h-3 text-slate-500" />
-                          <span className="text-slate-300 font-semibold" title={entry.hash}>
-                            {entry.hash.substring(0, 10)}...
+                          <span className="text-slate-300 font-semibold" title={entry.hash || ''}>
+                            {entry.hash ? entry.hash.substring(0, 10) + '...' : 'N/A'}
                           </span>
                         </div>
-                        <div className="text-[9px] text-slate-500" title={entry.prev_hash}>
-                          prev: {entry.prev_hash.substring(0, 10)}...
+                        <div className="text-[9px] text-slate-500" title={entry.prev_hash || ''}>
+                          prev: {entry.prev_hash ? entry.prev_hash.substring(0, 10) + '...' : 'genesis'}
                         </div>
                       </td>
                       <td className="py-3 px-4 text-right text-slate-400 font-sans text-[11px]">
-                        {new Date(entry.created_at).toLocaleTimeString()}
+                        {formatDateTime(entry.created_at)}
                       </td>
                     </tr>
                   );

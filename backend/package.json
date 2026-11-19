@@ -10,6 +10,7 @@
     "test": "tsx --test src/test/phase2.test.ts src/test/matching.test.ts src/test/risk.test.ts src/test/investigation_copilot.test.ts",
     "smoke": "tsx src/test/smoke.ts",
     "demo-test": "tsx src/test/demo.test.ts",
+    "e2e": "tsx src/test/e2e_screens.test.ts",
     "reset-demo": "tsx src/scripts/resetDemo.ts",
     "db:migrate": "tsx src/db/migrate.ts",
     "db:seed": "tsx src/db/seed.ts"

@@ -177,7 +177,23 @@ export async function matchInvoice(invoiceId: string, actorId: string): Promise<
     [invoice.po_id]
   );
   if (poRes.rows.length === 0) {
-    throw new Error(`Associated Purchase Order '${invoice.po_id}' not found.`);
+    reasons.push(`Referenced Purchase Order '${invoice.po_id}' not found in system register.`);
+    status = 'HOLD';
+
+    const holdResult: MatchResult = {
+      invoice_id: realInvoiceId,
+      status,
+      reasons,
+      compared_values: {
+        grn_numbers: [],
+        items: [],
+        invoice_total: parseFloat(invoice.total) || 0,
+        tolerances: { qty_tolerance_percent: 2.0, price_tolerance_percent: 2.0 }
+      }
+    };
+
+    await saveMatchResultAndAudit(realInvoiceId, holdResult, actorId);
+    return holdResult;
   }
   const po = poRes.rows[0];
 
@@ -208,7 +224,8 @@ export async function matchInvoice(invoiceId: string, actorId: string): Promise<
         [gid]
       );
       for (const line of lines.rows) {
-        const itemKey = line.item_name.trim().toLowerCase();
+        const itemKey = (line.item_name || '').trim().toLowerCase();
+        if (!itemKey) continue;
         const existing = grnReceivedTotals.get(itemKey) || 0;
         grnReceivedTotals.set(itemKey, existing + parseFloat(line.quantity_received));
       }
@@ -239,20 +256,21 @@ export async function matchInvoice(invoiceId: string, actorId: string): Promise<
 
       // Find matching PO line
       const poLine = poLines.find((p: any) =>
-        p.item_name.toLowerCase().includes(invItemName.toLowerCase()) ||
-        invItemName.toLowerCase().includes(p.item_name.toLowerCase())
+        (p.item_name && p.item_name.toLowerCase().includes(invItemName.toLowerCase())) ||
+        (p.item_name && invItemName.toLowerCase().includes(p.item_name.toLowerCase()))
       ) || poLines[0]; // fallback to first line if single-line order
 
       const poQty = poLine ? parseFloat(poLine.quantity) || 0 : 0;
       const poListedPrice = poLine ? parseFloat(poLine.unit_price) || 0 : 0;
-      const poApprovedPrice = poLine && approvedPrices.has(poLine.item_name)
+      const poApprovedPrice = poLine && poLine.item_name && approvedPrices.has(poLine.item_name)
         ? approvedPrices.get(poLine.item_name)!
         : poListedPrice;
       const poTaxRate = poLine ? parseFloat(poLine.tax_rate) || 18.00 : 18.00;
 
       // Find received quantity for this item
-      const grnReceivedQty = poLine && grnReceivedTotals.has(poLine.item_name.trim().toLowerCase())
-        ? grnReceivedTotals.get(poLine.item_name.trim().toLowerCase())!
+      const poLineItemKey = poLine?.item_name ? poLine.item_name.trim().toLowerCase() : '';
+      const grnReceivedQty = poLineItemKey && grnReceivedTotals.has(poLineItemKey)
+        ? grnReceivedTotals.get(poLineItemKey)!
         : (grns.length > 0 && grnReceivedTotals.size > 0 ? Array.from(grnReceivedTotals.values())[0] : 0);
 
       const itemDiscrepancies: string[] = [];

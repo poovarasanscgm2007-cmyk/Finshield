@@ -49,7 +49,18 @@ export const InvoiceVerificationModal: React.FC<Props> = ({ invoiceId, onClose, 
         const inv = data.invoice;
         setInvoice(inv);
         setInvoiceNumber(inv.invoice_number || '');
-        setInvoiceDate(inv.invoice_date ? new Date(inv.invoice_date).toISOString().slice(0, 10) : '');
+        let parsedDate = '';
+        if (inv.invoice_date) {
+          try {
+            const d = new Date(inv.invoice_date);
+            if (!isNaN(d.getTime())) {
+              parsedDate = d.toISOString().slice(0, 10);
+            }
+          } catch {
+            parsedDate = '';
+          }
+        }
+        setInvoiceDate(parsedDate);
         setPoReference(inv.po_number || inv.po_reference || '');
         setSupplierGstin(inv.supplier_gstin || '');
         setSubtotal(inv.subtotal || 0);
