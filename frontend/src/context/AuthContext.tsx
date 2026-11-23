@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { User } from '../types/auth';
+import { getApiUrl } from '../utils/api';
 
 interface AuthContextType {
   user: User | null;
@@ -26,7 +27,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       try {
-        const res = await fetch('/api/auth/me', {
+        const res = await fetch(getApiUrl('/api/auth/me'), {
           headers: { Authorization: `Bearer ${token}` }
         });
         if (res.ok) {
@@ -50,7 +51,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const login = async (email: string, pass: string): Promise<{ success: boolean; message?: string }> => {
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(getApiUrl('/api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password: pass })
@@ -85,7 +86,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       headers.set('Content-Type', 'application/json');
     }
 
-    const res = await fetch(url, { ...options, headers });
+    const res = await fetch(getApiUrl(url), { ...options, headers });
     if (res.status === 401) {
       logout();
     }

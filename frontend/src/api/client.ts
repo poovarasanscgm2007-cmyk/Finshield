@@ -4,6 +4,8 @@
  * and safe JSON parsing across all frontend network requests.
  */
 
+import { getApiUrl } from '../utils/api';
+
 export interface ApiResponse<T = any> {
   ok: boolean;
   status: number;
@@ -43,7 +45,7 @@ class ApiClient {
     };
 
     try {
-      const response = await fetch(endpoint, config);
+      const response = await fetch(getApiUrl(endpoint), config);
 
       let parsedData: any = null;
       const text = await response.text();

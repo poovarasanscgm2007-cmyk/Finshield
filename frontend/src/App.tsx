@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { getApiUrl } from './utils/api';
 import LoginPage from './components/LoginPage';
 import Header from './components/Header';
 import Sidebar, { NavTab } from './components/Sidebar';
@@ -85,7 +86,7 @@ const AppContent: React.FC = () => {
     setHealthError(null);
     const start = performance.now();
     try {
-      const response = await fetch('/api/health');
+      const response = await fetch(getApiUrl('/api/health'));
       const data = await response.json();
       setLatencyMs(Math.round(performance.now() - start));
       if (response.ok) {

@@ -20,9 +20,32 @@ dotenv.config();
 
 const app: Application = express();
 
-const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
+const isProduction = process.env.NODE_ENV === 'production';
+const rawCorsOrigin = process.env.CORS_ORIGIN || (isProduction ? '' : 'http://localhost:5173');
+
+// In production, allow ONLY explicitly configured frontend origins.
+// Reject wildcard '*' to ensure credentials security.
+const allowedOrigins = rawCorsOrigin
+  .split(',')
+  .map(o => o.trim())
+  .filter(o => Boolean(o) && o !== '*');
+
 app.use(cors({
-  origin: corsOrigin,
+  origin: (origin, callback) => {
+    // Allow non-browser requests (e.g. mobile, curl, server-to-server health checks)
+    if (!origin) return callback(null, true);
+
+    // Keep localhost access for development only
+    const isDevLocalhost = !isProduction && /^http:\/\/localhost(:\d+)?$/.test(origin);
+
+    // Check against explicitly configured production origins
+    const isExplicitlyAllowed = allowedOrigins.includes(origin);
+
+    if (isExplicitlyAllowed || isDevLocalhost) {
+      return callback(null, true);
+    }
+    return callback(new Error(`CORS blocked for unauthorized origin: ${origin}`));
+  },
   credentials: true
 }));
 

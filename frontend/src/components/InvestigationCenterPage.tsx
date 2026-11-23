@@ -40,7 +40,7 @@ export const InvestigationCenterPage: React.FC<InvestigationCenterPageProps> = (
     try {
       setLoading(true);
       const token = localStorage.getItem('token');
-      const res = await fetch('http://localhost:5000/api/investigations', {
+      const res = await fetch('/api/investigations', {
         headers: { Authorization: `Bearer ${token}` }
       });
       if (res.ok) {
@@ -68,7 +68,7 @@ export const InvestigationCenterPage: React.FC<InvestigationCenterPageProps> = (
       setActionLoading(true);
       setActionMessage(null);
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/investigations/${selectedInvestigation.id}/status`, {
+      const res = await fetch(`/api/investigations/${selectedInvestigation.id}/status`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
@@ -109,7 +109,7 @@ export const InvestigationCenterPage: React.FC<InvestigationCenterPageProps> = (
     try {
       setActionLoading(true);
       const token = localStorage.getItem('token');
-      const res = await fetch(`http://localhost:5000/api/investigations/${selectedInvestigation.id}/comments`, {
+      const res = await fetch(`/api/investigations/${selectedInvestigation.id}/comments`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
